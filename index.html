@@ -2,187 +2,747 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <!-- Fixed zooming issue: user-scalable=no, maximum-scale=1.0 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="theme-color" content="#06060f" />
-  <meta name="description" content="Smart Market List — a real-time, cross-device grocery list powered by Google Sheets. No local storage, syncs everywhere instantly." />
+  <meta name="description" content="Smart Market List — a real-time, cross-device grocery list powered by Google Sheets." />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta property="og:title" content="Smart Market List" />
-  <meta property="og:description" content="Real-time cross-device grocery list powered by Google Sheets" />
 
   <title>Smart Market List</title>
 
-  <!--
-    ── FAVICON (Tab Logo) ─────────────────────────────────────────
-    Place ANY of these PNG filenames in the same folder as index.html
-    and the browser will automatically use it as the tab icon:
-
-      favicon.png   ← most common, try this first
-      logo.png
-      icon.png
-
-    You can also use a .ico file named  favicon.ico
-    ──────────────────────────────────────────────────────────────
-  -->
-  <!-- Primary favicon — rename your PNG to favicon.png -->
-  <link rel="icon"             href="favicon.png"  type="image/png" sizes="any" />
-  <!-- Fallbacks for other common names -->
-  <link rel="icon"             href="logo.png"     type="image/png" sizes="any" />
-  <link rel="icon"             href="icon.png"     type="image/png" sizes="any" />
-  <!-- Apple home-screen icon (when bookmarked on iPhone/iPad) -->
+  <!-- Favicons -->
+  <link rel="icon" href="favicon.png" type="image/png" sizes="any" />
+  <link rel="icon" href="logo.png" type="image/png" sizes="any" />
+  <link rel="icon" href="icon.png" type="image/png" sizes="any" />
   <link rel="apple-touch-icon" href="favicon.png" />
-  <link rel="apple-touch-icon" href="logo.png"   />
-  <link rel="apple-touch-icon" href="icon.png"   />
+  <link rel="apple-touch-icon" href="logo.png" />
+  <link rel="apple-touch-icon" href="icon.png" />
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" />
 
+  <!-- App Stylesheet -->
   <link rel="stylesheet" href="style.css" />
+
+  <!-- Intro Styles -->
+  <style>
+    /* ===================== INTRO ===================== */
+    #intro {
+      position: fixed; inset: 0;
+      z-index: 1000;
+      overflow: hidden;
+      transition: opacity 0.5s ease;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+    #intro.finished { opacity: 0; pointer-events: none; }
+
+    /* Background */
+    .bg-layer {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 85% 75% at 50% 40%, #fde8f3 0%, #f7a8cc 50%, #ee5fa0 100%);
+      z-index: 0;
+    }
+    .bg-glow {
+      position: absolute;
+      top: 15%; left: 50%;
+      transform: translateX(-50%);
+      width: 70vw; height: 45vh;
+      background: radial-gradient(ellipse, rgba(255,255,255,0.35) 0%, transparent 70%);
+      z-index: 1;
+    }
+
+    /* Particles */
+    .particles-layer {
+      position: absolute; inset: 0;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.6);
+      will-change: transform;
+    }
+
+    /* Camera Layer */
+    .camera-layer {
+      position: absolute; inset: 0;
+      z-index: 10;
+      transform-origin: center center;
+      transform: scale(1.1) translate3d(0,0,0);
+      will-change: transform;
+    }
+
+    /* Market Objects */
+    .market-obj {
+      position: absolute;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0;
+      will-change: transform, opacity;
+    }
+    .market-obj svg { width: 100%; height: 100%; }
+
+    /* Brain Initial State Fix */
+    .brain-wrap {
+      position: absolute;
+      left: 50%; top: 50%;
+      transform: translate3d(-50%, calc(-50% + 60vh), 0) scale(0.7);
+      opacity: 0;
+      width: clamp(100px, 24vw, 200px);
+      height: clamp(100px, 24vw, 200px);
+      z-index: 30;
+      will-change: transform, opacity;
+      pointer-events: none;
+    }
+
+    /* Split halves */
+    .brain-split-layer {
+      position: absolute; inset: 0;
+      z-index: 40;
+      pointer-events: none;
+    }
+    .brain-half {
+      position: absolute;
+      opacity: 0;
+      will-change: transform, opacity;
+      overflow: visible;
+    }
+    .brain-half svg { display: block; }
+
+    /* Crack SVG */
+    #crackSvg {
+      position: absolute;
+      left: 50%; top: 50%;
+      transform: translate3d(-50%, -50%, 0);
+      z-index: 45;
+      opacity: 0;
+      pointer-events: none;
+      will-change: opacity, transform;
+      overflow: visible;
+    }
+
+    /* Flash */
+    .flash-layer {
+      position: absolute; inset: 0;
+      z-index: 50;
+      background: radial-gradient(ellipse at center, #fff 0%, #ffd6ec 35%, transparent 68%);
+      opacity: 0;
+      pointer-events: none;
+      will-change: opacity;
+    }
+
+    /* ===================== WELCOME ===================== */
+    .welcome-layer {
+      position: absolute; inset: 0;
+      z-index: 60;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      pointer-events: none;
+      opacity: 0;
+      will-change: opacity;
+    }
+
+    .welcome-backdrop {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 90% 60% at 50% 50%,
+        rgba(140,0,60,0.55) 0%,
+        rgba(100,0,40,0.35) 45%,
+        transparent 75%);
+      z-index: 0;
+    }
+
+    .welcome-content {
+      position: relative;
+      z-index: 2;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      padding: 0 16px;
+    }
+
+    .welcome-text {
+      font-size: clamp(42px, 13vw, 130px);
+      font-weight: 900;
+      letter-spacing: clamp(-1px, -0.02em, -3px);
+      text-transform: uppercase;
+      line-height: 0.95;
+      color: #ffffff;
+      text-shadow: 0 4px 18px rgba(180,0,80,0.8);
+      transform: scale(0);
+      transform-origin: center;
+      will-change: transform;
+    }
+
+    .welcome-sub {
+      margin-top: clamp(6px, 2vw, 16px);
+      font-size: clamp(10px, 3vw, 18px);
+      font-weight: 700;
+      letter-spacing: clamp(0.15em, 0.4vw, 0.3em);
+      text-transform: uppercase;
+      color: #ffffff;
+      opacity: 0;
+      transform: translate3d(0, 14px, 0);
+      will-change: transform, opacity;
+    }
+
+    /* Fixed main app wrapper */
+    #main-app {
+      position: fixed; inset: 0;
+      z-index: 500;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      background: var(--bg); /* Match the app background perfectly */
+      pointer-events: none;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      touch-action: auto; /* Re-enable scrolling after intro */
+    }
+    #main-app.visible { opacity: 1; pointer-events: all; }
+
+    @media (max-width: 480px) {
+      #obj-oil      { width: 42px !important; height: 54px !important; }
+      #obj-water    { width: 38px !important; height: 50px !important; }
+      #obj-rice     { width: 46px !important; height: 38px !important; }
+      #obj-dress    { width: 40px !important; height: 50px !important; }
+      #obj-suit     { width: 42px !important; height: 50px !important; }
+      #obj-bag      { width: 40px !important; height: 40px !important; }
+      #obj-cart     { width: 44px !important; height: 38px !important; }
+      #obj-cosmetic { width: 36px !important; height: 48px !important; }
+
+      .brain-wrap {
+        width: clamp(90px, 28vw, 120px);
+        height: clamp(90px, 28vw, 120px);
+      }
+    }
+  </style>
 </head>
-<body>
 
-  <div class="app">
+<!-- We put overflow:hidden on body ONLY for the intro, the main app handles its own scrolling inside #main-app -->
+<body style="width: 100%; height: 100%; overflow: hidden; touch-action: none; background: #f8d7e3;">
 
-    <!-- ── Header ── -->
-    <header class="app-header" role="banner">
-      <div class="header-left">
+  <div id="intro">
+    <div class="bg-layer"></div>
+    <div class="bg-glow"></div>
+    <div class="particles-layer" id="particlesLayer"></div>
 
-        <!-- Icon -->
-        <div class="app-icon" aria-hidden="true">🛒</div>
+    <div class="camera-layer" id="cameraLayer">
+      <div class="market-obj" id="obj-oil"      style="width:clamp(50px,8vw,90px);height:clamp(60px,10vw,110px);"></div>
+      <div class="market-obj" id="obj-water"    style="width:clamp(44px,7.5vw,84px);height:clamp(56px,9.5vw,104px);"></div>
+      <div class="market-obj" id="obj-rice"     style="width:clamp(54px,9vw,100px);height:clamp(44px,7.5vw,84px);"></div>
+      <div class="market-obj" id="obj-dress"    style="width:clamp(46px,8vw,88px);height:clamp(56px,9.5vw,104px);"></div>
+      <div class="market-obj" id="obj-suit"     style="width:clamp(50px,8.5vw,94px);height:clamp(58px,9.8vw,108px);"></div>
+      <div class="market-obj" id="obj-bag"      style="width:clamp(48px,8vw,88px);height:clamp(48px,8vw,88px);"></div>
+      <div class="market-obj" id="obj-cart"     style="width:clamp(52px,8.5vw,96px);height:clamp(46px,7.8vw,86px);"></div>
+      <div class="market-obj" id="obj-cosmetic" style="width:clamp(42px,7vw,80px);height:clamp(56px,9.5vw,104px);"></div>
+      <div class="brain-wrap" id="brainWrap"></div>
+    </div>
 
-        <!-- Title -->
-        <div>
-          <h1 class="app-title">Smart Market List</h1>
-        </div>
+    <svg id="crackSvg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg" style="width:clamp(100px,24vw,200px);height:clamp(100px,24vw,200px);">
+      <polyline id="crackPolyline"
+        points="100,5 88,38 112,60 82,90 118,118 78,148 108,172 96,210"
+        stroke="#ffffff" stroke-width="3" fill="none"
+        stroke-linecap="round" stroke-linejoin="round"
+        style="stroke-dasharray:400;stroke-dashoffset:400;"
+      />
+    </svg>
 
-      </div><!-- .header-left -->
+    <div class="flash-layer" id="flashLayer"></div>
 
-      <!-- Item count -->
-      <div class="header-right">
-        <div class="count-pill" aria-label="Total pending items">
-          <span id="count-badge">0</span>
-          <span class="count-label">items</span>
-        </div>
+    <div class="brain-split-layer" id="brainSplitLayer">
+      <div class="brain-half" id="brainLeft"></div>
+      <div class="brain-half" id="brainRight"></div>
+    </div>
+
+    <div class="welcome-layer" id="welcomeLayer">
+      <div class="welcome-backdrop"></div>
+      <div class="welcome-content">
+        <div class="welcome-text" id="welcomeText">WELCOME</div>
+        <div class="welcome-sub"  id="welcomeSub">TO YOUR SMART MARKET</div>
       </div>
+    </div>
+  </div>
 
-    </header><!-- .app-header -->
 
+  <!-- Main App (Appears after Intro) -->
+  <div id="main-app">
+    <div class="app">
 
-    <!-- ── Input Section ── -->
-    <section class="input-section" aria-label="Add a market item">
+      <!-- ── Header ── -->
+      <header class="app-header" role="banner">
+        <div class="header-left">
+          <div class="app-icon" aria-hidden="true">🛒</div>
+          <div>
+            <h1 class="app-title">Smart Market List</h1>
+          </div>
+        </div>
+        <div class="header-right">
+          <div class="count-pill" aria-label="Total pending items">
+            <span id="count-badge">0</span>
+            <span class="count-label">items</span>
+          </div>
+        </div>
+      </header>
 
-      <div class="input-row">
-
-        <!-- BIG BOX: Item name -->
-        <div class="input-box item-box" id="item-box">
-          <div class="box-label">What do you need?</div>
-          <input
-            type="text"
-            id="item-input"
-            class="box-input"
-            placeholder="Type item name…"
-            autocomplete="off"
-            autocorrect="off"
-            autocapitalize="words"
-            spellcheck="false"
-            enterkeyhint="next"
-            aria-label="Item name"
-          />
-          <!-- Live type-detection hint badge -->
-          <div class="type-hint" id="type-hint" aria-live="polite"></div>
-        </div><!-- item-box -->
-
-        <!-- SMALL BOX: Quantity -->
-        <div class="input-box qty-box" id="qty-box" aria-label="Quantity">
-          <div class="box-label">How much?</div>
-          <div class="qty-inner">
+      <!-- ── Input Section ── -->
+      <section class="input-section" aria-label="Add a market item">
+        <div class="input-row">
+          <div class="input-box item-box" id="item-box">
+            <div class="box-label">What do you need?</div>
             <input
-              type="number"
-              id="qty-input"
-              class="box-input qty-num"
-              placeholder="0"
-              min="0"
-              step="any"
-              inputmode="decimal"
-              enterkeyhint="done"
-              aria-label="Quantity number"
+              type="text"
+              id="item-input"
+              class="box-input"
+              placeholder="Type item name…"
+              autocomplete="off"
+              autocorrect="off"
+              autocapitalize="words"
+              spellcheck="false"
+              enterkeyhint="next"
+              aria-label="Item name"
             />
-            <button
-              class="unit-btn"
-              id="unit-btn"
-              aria-label="Toggle unit (kg/g or L/ml)"
-              type="button"
-            >
-              <span id="unit-label">—</span>
+            <div class="type-hint" id="type-hint" aria-live="polite"></div>
+          </div>
+
+          <div class="input-box qty-box" id="qty-box" aria-label="Quantity">
+            <div class="box-label">How much?</div>
+            <div class="qty-inner">
+              <input
+                type="number"
+                id="qty-input"
+                class="box-input qty-num"
+                placeholder="0"
+                min="0"
+                step="any"
+                inputmode="decimal"
+                enterkeyhint="done"
+                aria-label="Quantity number"
+              />
+              <button class="unit-btn" id="unit-btn" aria-label="Toggle unit" type="button">
+                <span id="unit-label">—</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <p class="input-hint" id="input-hint" aria-live="polite">
+          Type item name and press <kbd>Enter ↵</kbd>
+        </p>
+      </section>
+
+      <!-- ── Oil Selector Modal ── -->
+      <div class="oil-overlay" id="oil-overlay" role="dialog" aria-modal="true" aria-label="Select oil type">
+        <div class="oil-card">
+          <div class="oil-title">🫙 Which oil do you need?</div>
+          <div class="oil-opts">
+            <button class="oil-opt sarso" id="sarso-btn" type="button">
+              <span class="oil-emoji">🟡</span>
+              <span class="oil-name">Sarso Oil</span>
+              <span class="oil-sub">Mustard Oil</span>
+            </button>
+            <button class="oil-opt refine" id="refine-btn" type="button">
+              <span class="oil-emoji">🧴</span>
+              <span class="oil-name">Refine Oil</span>
+              <span class="oil-sub">Refined Oil</span>
             </button>
           </div>
-        </div><!-- qty-box -->
-
-      </div><!-- .input-row -->
-
-      <!-- Helper hint text -->
-      <p class="input-hint" id="input-hint" aria-live="polite">
-        Type item name and press <kbd>Enter ↵</kbd>
-      </p>
-
-    </section><!-- .input-section -->
-
-
-    <!-- ── Oil Selector Modal ── -->
-    <div
-      class="oil-overlay"
-      id="oil-overlay"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Select oil type"
-    >
-      <div class="oil-card">
-        <div class="oil-title">🫙 Which oil do you need?</div>
-        <div class="oil-opts">
-
-          <button class="oil-opt sarso" id="sarso-btn" type="button">
-            <span class="oil-emoji">🟡</span>
-            <span class="oil-name">Sarso Oil</span>
-            <span class="oil-sub">Mustard Oil</span>
-          </button>
-
-          <button class="oil-opt refine" id="refine-btn" type="button">
-            <span class="oil-emoji">🧴</span>
-            <span class="oil-name">Refine Oil</span>
-            <span class="oil-sub">Refined Oil</span>
-          </button>
-
         </div>
       </div>
-    </div><!-- .oil-overlay -->
 
-
-    <!-- ── Items List ── -->
-    <main class="items-section" aria-label="Market list items">
-      <div class="items-list" id="items-list" role="list">
-        <!-- Rendered dynamically by app.js -->
-        <div class="empty-state">
-          <div class="empty-icon">🛒</div>
-          <h2>Your list is empty</h2>
-          <p>Add items using the input above</p>
+      <!-- ── Items List ── -->
+      <main class="items-section" aria-label="Market list items">
+        <div class="items-list" id="items-list" role="list">
+          <div class="empty-state">
+            <div class="empty-icon">🛒</div>
+            <h2>Your list is empty</h2>
+            <p>Add items using the input above</p>
+          </div>
         </div>
-      </div>
-    </main>
+      </main>
 
+      <!-- ── Footer ── -->
+      <footer class="app-footer" role="contentinfo">
+        MADE BY ANABRATA
+      </footer>
 
-    <!-- ── Footer ── -->
-    <footer class="app-footer" role="contentinfo">
-      MADE BY ANABRATA
-    </footer>
-
-  </div><!-- .app -->
+    </div>
+  </div>
 
 
   <!-- Scripts -->
   <script src="config.js"></script>
   <script src="app.js"></script>
+
+  <!-- Intro Script -->
+  <script>
+    const SVG = {
+      brain: `<svg viewBox="0 0 200 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="brG" cx="50%" cy="35%" r="65%">
+            <stop offset="0%" stop-color="#ffb3d9"/>
+            <stop offset="45%" stop-color="#f06fa4"/>
+            <stop offset="100%" stop-color="#c0306a"/>
+          </radialGradient>
+        </defs>
+        <path d="M100 155 C60 155 30 140 20 118 C10 96 14 72 28 57 C38 46 50 42 56 30 C62 18 72 10 86 10 C95 10 102 14 106 20 C106 20 104 30 100 38" fill="url(#brG)" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
+        <path d="M100 155 C140 155 170 140 180 118 C190 96 186 72 172 57 C162 46 150 42 144 30 C138 18 128 10 114 10 C105 10 98 14 94 20 C94 20 96 30 100 38" fill="url(#brG)" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
+        <rect x="88" y="148" width="24" height="14" rx="7" fill="#d84080"/>
+        <ellipse cx="72" cy="96" rx="8" ry="9" fill="white"/>
+        <ellipse cx="128" cy="96" rx="8" ry="9" fill="white"/>
+        <circle cx="74" cy="97" r="5" fill="#c0306a"/>
+        <circle cx="130" cy="97" r="5" fill="#c0306a"/>
+      </svg>`,
+
+      oil: `<svg viewBox="0 0 90 120" fill="none"><rect x="18" y="28" width="54" height="82" rx="12" fill="#f59e0b"/><rect x="12" y="58" width="66" height="30" rx="6" fill="#fff"/><text x="45" y="78" text-anchor="middle" font-size="14" font-weight="900" fill="#b45309">OIL</text></svg>`,
+      water: `<svg viewBox="0 0 90 120" fill="none"><rect x="20" y="28" width="50" height="82" rx="12" fill="#0284c7"/><rect x="12" y="58" width="66" height="30" rx="6" fill="#fff"/><text x="45" y="78" text-anchor="middle" font-size="12" font-weight="900" fill="#0369a1">WATER</text></svg>`,
+      rice: `<svg viewBox="0 0 110 90" fill="none"><rect x="10" y="18" width="90" height="64" rx="14" fill="#d97706"/><rect x="16" y="48" width="78" height="26" rx="6" fill="#fff"/><text x="55" y="66" text-anchor="middle" font-size="13" font-weight="900" fill="#78350f">RICE</text></svg>`,
+      dress: `<svg viewBox="0 0 90 120" fill="none"><path d="M30 28 L18 58 L10 110 L80 110 L72 58 L60 28 Z" fill="#db2777"/><rect x="20" y="68" width="50" height="26" rx="6" fill="#fff"/><text x="45" y="86" text-anchor="middle" font-size="12" font-weight="900" fill="#9d174d">DRESS</text></svg>`,
+      suit: `<svg viewBox="0 0 100 120" fill="none"><path d="M12 36 L22 20 L50 30 L78 20 L88 36 L88 112 L12 112 Z" fill="#4f46e5"/><rect x="25" y="70" width="50" height="26" rx="6" fill="#fff"/><text x="50" y="88" text-anchor="middle" font-size="13" font-weight="900" fill="#312e81">SUIT</text></svg>`,
+      bag: `<svg viewBox="0 0 100 100" fill="none"><rect x="14" y="32" width="72" height="58" rx="12" fill="#e11d48"/><rect x="25" y="52" width="50" height="26" rx="6" fill="#fff"/><text x="50" y="70" text-anchor="middle" font-size="13" font-weight="900" fill="#881337">BAG</text></svg>`,
+      cart: `<svg viewBox="0 0 110 95" fill="none"><path d="M22 20 L16 54 L94 54 L88 20 Z" fill="#9333ea"/><circle cx="34" cy="72" r="8" fill="#6b21a8"/><circle cx="76" cy="72" r="8" fill="#6b21a8"/><rect x="30" y="26" width="50" height="22" rx="5" fill="#fff"/><text x="55" y="42" text-anchor="middle" font-size="12" font-weight="900" fill="#581c87">CART</text></svg>`,
+      cosmetic: `<svg viewBox="0 0 80 120" fill="none"><rect x="18" y="34" width="44" height="74" rx="10" fill="#db2777"/><rect x="12" y="60" width="56" height="28" rx="6" fill="#fff"/><text x="40" y="78" text-anchor="middle" font-size="10" font-weight="900" fill="#831843">BEAUTY</text></svg>`
+    };
+
+    document.getElementById('obj-oil').innerHTML       = SVG.oil;
+    document.getElementById('obj-water').innerHTML     = SVG.water;
+    document.getElementById('obj-rice').innerHTML      = SVG.rice;
+    document.getElementById('obj-dress').innerHTML     = SVG.dress;
+    document.getElementById('obj-suit').innerHTML      = SVG.suit;
+    document.getElementById('obj-bag').innerHTML       = SVG.bag;
+    document.getElementById('obj-cart').innerHTML      = SVG.cart;
+    document.getElementById('obj-cosmetic').innerHTML  = SVG.cosmetic;
+    document.getElementById('brainWrap').innerHTML     = SVG.brain;
+
+    let audioCtx = null;
+    function getAudioContext() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) audioCtx = new AudioContextClass();
+      }
+      if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+      return audioCtx;
+    }
+
+    function playPaperTearingSound() {
+      const ctx = getAudioContext();
+      if (!ctx) return;
+      try {
+        const now = ctx.currentTime;
+        const duration = 0.3;
+        const bufferSize = ctx.sampleRate * duration;
+        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * 0.3;
+        const noise = ctx.createBufferSource();
+        noise.buffer = buffer;
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(1800, now);
+        filter.Q.setValueAtTime(1.2, now);
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0.01, now);
+        gain.gain.linearRampToValueAtTime(0.3, now + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
+        noise.start(now);
+        noise.stop(now + duration);
+      } catch (e) {}
+    }
+
+    const ease = {
+      outCubic: t => 1 - Math.pow(1-t, 3),
+      outBack:  t => { const c1=1.70158,c3=c1+1; return 1+c3*Math.pow(t-1,3)+c1*Math.pow(t-1,2); },
+      inCubic:  t => t*t*t
+    };
+
+    function lerp(a,b,t){ return a+(b-a)*t; }
+
+    function animate({ duration, easing=ease.outCubic, onUpdate, onComplete }) {
+      const start = performance.now();
+      function frame(now) {
+        let t = Math.min((now-start)/(duration*1000), 1);
+        onUpdate(easing(t), t);
+        if(t<1) requestAnimationFrame(frame);
+        else if(onComplete) onComplete();
+      }
+      requestAnimationFrame(frame);
+    }
+
+    const vw = () => window.innerWidth;
+    const vh = () => window.innerHeight;
+    const cx = () => vw()/2;
+    const cy = () => vh()/2;
+    const isMobile = () => vw() < 600;
+
+    function getOrbits() {
+      const m = isMobile();
+      return {
+        oil:      { dx: m ? -0.28 : -0.30, dy: m ? -0.22 : -0.26 },
+        water:    { dx: m ?  0.28 :  0.28, dy: m ? -0.22 : -0.28 },
+        rice:     { dx: m ? -0.30 : -0.36, dy: m ?  0.06 :  0.10 },
+        dress:    { dx: m ?  0.30 :  0.33, dy: m ?  0.06 :  0.08 },
+        suit:     { dx: m ? -0.18 : -0.20, dy: m ?  0.22 :  0.30 },
+        bag:      { dx: m ?  0.18 :  0.22, dy: m ?  0.22 :  0.28 },
+        cart:     { dx: m ?  0.00 :  0.00, dy: m ? -0.28 : -0.34 },
+        cosmetic: { dx: m ? -0.05 : -0.08, dy: m ?  0.28 :  0.36 },
+      };
+    }
+
+    const entries = {
+      oil:      { fromDx:-0.6, fromDy:-0.5, rot:-15 },
+      water:    { fromDx: 0.6, fromDy:-0.5, rot: 15 },
+      rice:     { fromDx:-0.7, fromDy: 0.2, rot: 10 },
+      dress:    { fromDx: 0.7, fromDy: 0.2, rot:-10 },
+      suit:     { fromDx:-0.4, fromDy: 0.6, rot:  8 },
+      bag:      { fromDx: 0.5, fromDy: 0.6, rot: -8 },
+      cart:     { fromDx: 0.0, fromDy:-0.7, rot:  5 },
+      cosmetic: { fromDx:-0.2, fromDy: 0.7, rot: -8 },
+    };
+
+    const floatStates = {};
+
+    function popObject(key) {
+      return new Promise(resolve => {
+        const el = document.getElementById('obj-'+key);
+        const orb = getOrbits()[key];
+        const ent = entries[key];
+        const s = { w: el.offsetWidth, h: el.offsetHeight };
+        const tX = cx() + orb.dx * vw() - s.w/2;
+        const tY = cy() + orb.dy * vh() - s.h/2;
+        const sX = cx() + ent.fromDx * vw() - s.w/2;
+        const sY = cy() + ent.fromDy * vh() - s.h/2;
+
+        el.style.left      = sX+'px';
+        el.style.top       = sY+'px';
+        el.style.opacity   = '0';
+
+        animate({
+          duration: 0.35,
+          easing: ease.outBack,
+          onUpdate: v => {
+            el.style.opacity   = `${Math.min(v*2.5,1)}`;
+            el.style.left      = lerp(sX,tX,v)+'px';
+            el.style.top       = lerp(sY,tY,v)+'px';
+            el.style.transform = `scale(${lerp(0.2,1,v)})`;
+          },
+          onComplete: () => {
+            startFloating(key, tX, tY, ent.rot*0.12);
+            resolve();
+          }
+        });
+      });
+    }
+
+    function startFloating(key, baseX, baseY, baseRot) {
+      const el  = document.getElementById('obj-'+key);
+      const amp = 4 + Math.random()*4;
+      const per = 1800 + Math.random()*1200;
+      const ph  = Math.random()*Math.PI*2;
+      floatStates[key] = { active:true };
+
+      function loop(t) {
+        if(!floatStates[key]?.active) return;
+        const s2 = Math.sin((t/per)*Math.PI*2+ph);
+        el.style.left = (baseX + s2*amp*0.5)+'px';
+        el.style.top  = (baseY + s2*amp)+'px';
+        requestAnimationFrame(loop);
+      }
+      requestAnimationFrame(loop);
+    }
+
+    function stopFloating(key) {
+      if(floatStates[key]) floatStates[key].active = false;
+    }
+
+    function animateBrainEntrance() {
+      return new Promise(resolve => {
+        const brain = document.getElementById('brainWrap');
+        animate({
+          duration: 0.4,
+          easing: ease.outCubic,
+          onUpdate: v => {
+            brain.style.opacity   = `${Math.min(v*2.5,1)}`;
+            brain.style.transform = `translate3d(-50%, calc(-50% + ${lerp(60, 0, v)}vh), 0) scale(${lerp(0.7, 1, v)})`;
+          },
+          onComplete: () => {
+            brain.style.pointerEvents = 'auto';
+            resolve();
+          }
+        });
+      });
+    }
+
+    function convergeObjects() {
+      return new Promise(resolve => {
+        const groups = [
+          { keys: ['oil'], delay: 0 },
+          { keys: ['water', 'rice'], delay: 150 },
+          { keys: ['dress', 'suit', 'bag'], delay: 300 },
+          { keys: ['cart', 'cosmetic'], delay: 450 }
+        ];
+
+        let completedGroups = 0;
+        groups.forEach((group) => {
+          setTimeout(() => {
+            group.keys.forEach(key => {
+              stopFloating(key);
+              const el   = document.getElementById('obj-'+key);
+              const r    = el.getBoundingClientRect();
+              const sX   = parseFloat(el.style.left);
+              const sY   = parseFloat(el.style.top);
+              const tX   = cx() - r.width/2;
+              const tY   = cy() - r.height/2;
+
+              animate({
+                duration: 0.35,
+                easing: ease.inCubic,
+                onUpdate: v => {
+                  el.style.left      = lerp(sX,tX,v)+'px';
+                  el.style.top       = lerp(sY,tY,v)+'px';
+                  el.style.transform = `scale(${lerp(1,0.1,v)})`;
+                  el.style.opacity   = `${lerp(1,0,v)}`;
+                }
+              });
+            });
+
+            completedGroups++;
+            if (completedGroups === groups.length) setTimeout(resolve, 380);
+          }, group.delay);
+        });
+      });
+    }
+
+    function animateBrainSplit() {
+      return new Promise(resolve => {
+        playPaperTearingSound();
+        const brain  = document.getElementById('brainWrap');
+        const leftH  = document.getElementById('brainLeft');
+        const rightH = document.getElementById('brainRight');
+        const crackSvg  = document.getElementById('crackSvg');
+        const crackLine = document.getElementById('crackPolyline');
+
+        const bRect = brain.getBoundingClientRect();
+        const W = bRect.width;
+        const H = bRect.height;
+        const zigX = [0.500, 0.440, 0.560, 0.410, 0.590, 0.390, 0.540, 0.480];
+        const zigY = [0.023, 0.173, 0.273, 0.409, 0.536, 0.673, 0.782, 0.955];
+
+        let leftPath  = `M0,0 L${W},0 `;
+        zigX.forEach((x,i)=>{ leftPath += `L${x*W},${zigY[i]*H} `; });
+        leftPath += `L0,${H} Z`;
+
+        let rightPath = `M${W},0 L${W},${H} L0,${H} `;
+        for(let i=zigX.length-1;i>=0;i--){ rightPath += `L${zigX[i]*W},${zigY[i]*H} `; }
+        rightPath += `Z`;
+
+        const idL = 'cl_'+Date.now()+'_L';
+        const idR = 'cl_'+Date.now()+'_R';
+
+        leftH.innerHTML  = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg"><defs><clipPath id="${idL}"><path d="${leftPath}"/></clipPath></defs><g clip-path="url(#${idL})">${SVG.brain}</g></svg>`;
+        rightH.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg"><defs><clipPath id="${idR}"><path d="${rightPath}"/></clipPath></defs><g clip-path="url(#${idR})">${SVG.brain}</g></svg>`;
+
+        leftH.style.top    = rightH.style.top    = bRect.top+'px';
+        leftH.style.left   = rightH.style.left   = bRect.left+'px';
+        leftH.style.width  = rightH.style.width  = W+'px';
+        leftH.style.height = rightH.style.height = H+'px';
+        crackSvg.style.opacity = '1';
+
+        animate({
+          duration: 0.15,
+          easing: ease.outCubic,
+          onUpdate: v => { crackLine.style.strokeDashoffset = lerp(400, 0, v); },
+          onComplete: () => {
+            brain.style.opacity = '0';
+            leftH.style.opacity = rightH.style.opacity = '1';
+            const spreadX = vw() * (isMobile() ? 0.25 : 0.3);
+            const spreadY = vh() * (isMobile() ? 0.18 : 0.22);
+
+            animate({
+              duration: 0.25,
+              easing: ease.outBack,
+              onUpdate: v => {
+                leftH.style.transform  = `translate3d(${-spreadX*v}px, ${-spreadY*v}px, 0) scale(${lerp(1,0.7,v)})`;
+                rightH.style.transform = `translate3d(${spreadX*v}px, ${spreadY*v}px, 0) scale(${lerp(1,0.7,v)})`;
+                crackSvg.style.opacity = `${lerp(1,0,v)}`;
+              },
+              onComplete: () => {
+                crackSvg.style.opacity = '0';
+                resolve();
+              }
+            });
+          }
+        });
+      });
+    }
+
+    function revealWelcome() {
+      return new Promise(resolve => {
+        const layer = document.getElementById('welcomeLayer');
+        const text  = document.getElementById('welcomeText');
+        const sub   = document.getElementById('welcomeSub');
+        animate({ duration: 0.2, easing: ease.outCubic, onUpdate: v => { layer.style.opacity = `${v}`; } });
+        animate({
+          duration: 0.3,
+          easing: ease.outBack,
+          onUpdate: v => { text.style.transform = `scale(${lerp(0, 1, v)})`; },
+          onComplete: () => {
+            animate({
+              duration: 0.3,
+              easing: ease.outBack,
+              onUpdate: v => {
+                sub.style.opacity   = `${Math.min(v*1.5,1)}`;
+                sub.style.transform = `translate3d(0, ${lerp(14,0,v)}px, 0)`;
+              },
+              onComplete: resolve
+            });
+          }
+        });
+      });
+    }
+
+    async function runIntro() {
+      const intro   = document.getElementById('intro');
+      const mainApp = document.getElementById('main-app');
+
+      await new Promise(r => setTimeout(r, 100));
+      animateBrainEntrance();
+
+      const objSchedule = [
+        ['oil',      250],
+        ['water',    450],
+        ['rice',     650],
+        ['dress',    850],
+        ['suit',     1050],
+        ['bag',      1200],
+        ['cart',     1300],
+        ['cosmetic', 1400],
+      ];
+      objSchedule.forEach(([key, delay]) => setTimeout(() => popObject(key), delay));
+
+      await new Promise(r => setTimeout(r, 2000));
+      await convergeObjects();
+      await new Promise(r => setTimeout(r, 100));
+      await animateBrainSplit();
+      await revealWelcome();
+      await new Promise(r => setTimeout(r, 600));
+
+      intro.classList.add('finished');
+      setTimeout(() => { 
+        mainApp.classList.add('visible'); 
+      }, 200);
+    }
+
+    window.addEventListener('click', getAudioContext, { once: true });
+    window.addEventListener('touchstart', getAudioContext, { once: true });
+
+    // The intro animation will automatically run on load.
+    // The main app.js script will also run on load and fetch the data in the background!
+    window.addEventListener('DOMContentLoaded', runIntro);
+  </script>
 
 </body>
 </html>

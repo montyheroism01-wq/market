@@ -67,6 +67,10 @@
 ::-webkit-scrollbar { width: 0; height: 0; display: none; }
 *                   { scrollbar-width: none; -ms-overflow-style: none; }
 
+/* Disable text selection highlights */
+::selection { background: transparent; }
+::-moz-selection { background: transparent; }
+
 /* ── Base ───────────────────────────────────── */
 html { height: 100%; }
 body {
@@ -79,6 +83,12 @@ body {
   overflow-x: hidden;
   overflow-y: scroll;
   -webkit-font-smoothing: antialiased;
+  user-select: none;
+  -webkit-user-select: none;
+}
+input, textarea {
+  user-select: auto;
+  -webkit-user-select: auto;
 }
 
 /* ══════════════════════════════════════════════
