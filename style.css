@@ -8,45 +8,45 @@
 
 /* ── CSS Variables ──────────────────────────── */
 :root {
-  /* Palette */
-  --bg:            #fdf8ff;
-  --bg-2:          #fff0f8;
+  /* Palette (Warmer, cuter pastel tones) */
+  --bg:            #fffaf5; /* Soft warm cream */
+  --bg-2:          #fff2ec;
   --white:         #ffffff;
-  --purple:        #9b5de5;
-  --purple-light:  #c77dff;
-  --purple-soft:   rgba(155, 93, 229, 0.10);
-  --purple-border: rgba(155, 93, 229, 0.20);
-  --pink:          #f15bb5;
-  --pink-light:    #ff8fd0;
-  --pink-soft:     rgba(241, 91, 181, 0.10);
-  --pink-border:   rgba(241, 91, 181, 0.22);
-  --lavender:      #e0c3fc;
-  --mint:          #2ec4b6;
-  --green:         #06d6a0;
-  --green-soft:    rgba(6, 214, 160, 0.12);
+  --purple:        #ff8fab; /* Warm pastel pink/rose */
+  --purple-light:  #ffb3c6;
+  --purple-soft:   rgba(255, 143, 171, 0.12);
+  --purple-border: rgba(255, 143, 171, 0.25);
+  --pink:          #fb6f92; /* Warmer deep pink */
+  --pink-light:    #ffc2d1;
+  --pink-soft:     rgba(251, 111, 146, 0.10);
+  --pink-border:   rgba(251, 111, 146, 0.22);
+  --lavender:      #ffe5ec;
+  --mint:          #ffc8dd;
+  --green:         #ffa69e;
+  --green-soft:    rgba(255, 166, 158, 0.15);
 
   /* Text */
-  --text:          #2d1b69;
-  --text-2:        rgba(45, 27, 105, 0.55);
-  --text-3:        rgba(45, 27, 105, 0.32);
+  --text:          #594246; /* Warmer, softer brown/maroon instead of dark purple */
+  --text-2:        rgba(89, 66, 70, 0.65);
+  --text-3:        rgba(89, 66, 70, 0.40);
 
   /* Surfaces */
   --card:          #ffffff;
-  --card-border:   rgba(155, 93, 229, 0.14);
-  --card-hover:    rgba(155, 93, 229, 0.04);
+  --card-border:   rgba(255, 143, 171, 0.18);
+  --card-hover:    rgba(255, 143, 171, 0.05);
 
-  /* Shadows */
-  --shadow-sm:     0 2px 10px rgba(155, 93, 229, 0.08);
-  --shadow-md:     0 6px 24px rgba(155, 93, 229, 0.12);
-  --shadow-lg:     0 16px 48px rgba(155, 93, 229, 0.14);
-  --shadow-pink:   0 8px 28px rgba(241, 91, 181, 0.16);
+  /* Shadows (Warmer pinkish shadows) */
+  --shadow-sm:     0 3px 12px rgba(255, 143, 171, 0.08);
+  --shadow-md:     0 8px 24px rgba(255, 143, 171, 0.15);
+  --shadow-lg:     0 16px 48px rgba(255, 143, 171, 0.20);
+  --shadow-pink:   0 8px 28px rgba(251, 111, 146, 0.18);
 
-  /* Radii */
-  --r-sm:   8px;
-  --r-md:   14px;
-  --r-lg:   20px;
-  --r-xl:   26px;
-  --r-2xl:  34px;
+  /* Radii (More rounded = cuter) */
+  --r-sm:   12px;
+  --r-md:   18px;
+  --r-lg:   24px;
+  --r-xl:   32px;
+  --r-2xl:  40px;
   --r-full: 999px;
 
   /* Fonts */
@@ -719,11 +719,7 @@ kbd {
 .empty-icon {
   font-size: 3.6rem;
   margin-bottom: 18px;
-  animation: cart-bounce 2.5s ease-in-out infinite;
-}
-@keyframes cart-bounce {
-  0%,100% { transform: translateY(0) rotate(-4deg); }
-  50%     { transform: translateY(-10px) rotate(4deg); }
+  /* Removed shaking animation */
 }
 .empty-state h2 {
   font-family: var(--font-h);
