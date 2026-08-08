@@ -97,7 +97,6 @@ let lastItemsStr = '';
 async function fetchItems() {
   if (!configOk) return;
   try {
-    setSyncState('syncing', 'Syncing…');
     const data = await apiGet();
     if (data.success) {
       items = data.items || [];
@@ -107,12 +106,11 @@ async function fetchItems() {
         lastItemsStr = newItemsStr;
         renderItems();
       }
-      setSyncState('synced', 'Synced');
     } else {
-      setSyncState('error', 'Error');
+      console.error('Fetch error');
     }
   } catch {
-    setSyncState('error', 'Offline');
+    console.error('Fetch failed (offline)');
   }
 }
 
@@ -313,7 +311,6 @@ async function saveItem(item, qty, unit) {
   animateCount(parseInt(DOM.countBadge.textContent || '0') + 1);
 
   try {
-    setSyncState('syncing', 'Saving…');
     const res = await apiAdd(item, qty, unit);
     if (res.success) {
       resetToIdle(true);
@@ -323,7 +320,6 @@ async function saveItem(item, qty, unit) {
     }
   } catch (err) {
     console.error('Save error:', err);
-    setSyncState('error', 'Save failed');
     animateCount(parseInt(DOM.countBadge.textContent || '1') - 1);
     isSaving = false;
   }
@@ -487,10 +483,7 @@ function animateCount(n) {
   DOM.countBadge.classList.add('bump');
 }
 
-function setSyncState(state, label) {
-  DOM.syncDot.className  = `sync-dot ${state}`;
-  DOM.syncText.textContent = label || state;
-}
+// Sync state removed
 
 // ══════════════════════════════════════════════
 // PARTICLES (lightweight CSS-driven)
