@@ -220,7 +220,7 @@ function initEventHandlers() {
     e.preventDefault();
     if (isSaving) return;
     const qty = DOM.qtyInput.value.trim();
-    if (!qty) return;
+    // Allow saving even if qty is empty
 
     if (!manualUnit) {
       currentUnit = autoUnit(currentItemType, qty);
@@ -235,6 +235,8 @@ function initEventHandlers() {
     DOM.unitLabel.textContent = currentUnit || ' ';
     DOM.unitBtn.classList.add('toggled');
     setTimeout(() => DOM.unitBtn.classList.remove('toggled'), 320);
+    // Return focus to qtyInput so the user can immediately press Enter to save
+    DOM.qtyInput.focus();
   });
 
   // ── ESC closes oil modal ─────────────────────
@@ -331,6 +333,7 @@ async function saveItem(item, qty, unit) {
     console.error('Save error:', err);
     animateCount(parseInt(DOM.countBadge.textContent || '1') - 1);
     isSaving = false;
+    alert("Error saving: " + err.message + "\n\n(If it says validation error, please remove the Data Validation dropdown from the Unit column in your Google Sheet!)");
   }
 }
 
