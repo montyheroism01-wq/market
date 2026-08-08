@@ -378,21 +378,43 @@
   <!-- Intro Script -->
   <script>
     const SVG = {
-      brain: `<svg viewBox="0 0 200 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+      brain: `<svg viewBox="0 0 200 180" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          <radialGradient id="brG" cx="50%" cy="35%" r="65%">
-            <stop offset="0%" stop-color="#ffb3d9"/>
-            <stop offset="45%" stop-color="#f06fa4"/>
-            <stop offset="100%" stop-color="#c0306a"/>
+          <linearGradient id="brainColor" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#ff99cc"/>
+            <stop offset="50%" stop-color="#ff4d94"/>
+            <stop offset="100%" stop-color="#cc0052"/>
+          </linearGradient>
+          <radialGradient id="gyriHighlight" cx="30%" cy="30%" r="70%">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.4"/>
+            <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
           </radialGradient>
         </defs>
-        <path d="M100 155 C60 155 30 140 20 118 C10 96 14 72 28 57 C38 46 50 42 56 30 C62 18 72 10 86 10 C95 10 102 14 106 20 C106 20 104 30 100 38" fill="url(#brG)" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
-        <path d="M100 155 C140 155 170 140 180 118 C190 96 186 72 172 57 C162 46 150 42 144 30 C138 18 128 10 114 10 C105 10 98 14 94 20 C94 20 96 30 100 38" fill="url(#brG)" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
-        <rect x="88" y="148" width="24" height="14" rx="7" fill="#d84080"/>
-        <ellipse cx="72" cy="96" rx="8" ry="9" fill="white"/>
-        <ellipse cx="128" cy="96" rx="8" ry="9" fill="white"/>
-        <circle cx="74" cy="97" r="5" fill="#c0306a"/>
-        <circle cx="130" cy="97" r="5" fill="#c0306a"/>
+        <path d="M 100 20 C 60 15, 20 40, 20 85 C 20 130, 45 160, 80 160 C 95 160, 100 150, 100 150" fill="url(#brainColor)"/>
+        <path d="M 100 20 C 60 15, 20 40, 20 85 C 20 130, 45 160, 80 160 C 95 160, 100 150, 100 150" fill="url(#gyriHighlight)"/>
+        <path d="M 100 20 C 140 15, 180 40, 180 85 C 180 130, 155 160, 120 160 C 105 160, 100 150, 100 150" fill="url(#brainColor)"/>
+        <path d="M 100 20 C 140 15, 180 40, 180 85 C 180 130, 155 160, 120 160 C 105 160, 100 150, 100 150" fill="url(#gyriHighlight)"/>
+        
+        <path d="M 100 20 Q 96 60, 100 90 T 100 150" stroke="#800033" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.6"/>
+
+        <g stroke="#99003d" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.5">
+          <path d="M 40 50 Q 60 40, 75 55 T 90 45" />
+          <path d="M 28 85 Q 50 75, 60 90 T 95 85" />
+          <path d="M 35 120 Q 60 110, 70 125 T 90 120" />
+          <path d="M 60 150 Q 75 130, 85 145" />
+          <path d="M 50 25 Q 70 20, 80 30" />
+          <path d="M 80 60 Q 90 70, 85 80" />
+          <path d="M 75 95 Q 85 105, 80 115" />
+        </g>
+        <g stroke="#99003d" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.5">
+          <path d="M 160 50 Q 140 40, 125 55 T 110 45" />
+          <path d="M 172 85 Q 150 75, 140 90 T 105 85" />
+          <path d="M 165 120 Q 140 110, 130 125 T 110 120" />
+          <path d="M 140 150 Q 125 130, 115 145" />
+          <path d="M 150 25 Q 130 20, 120 30" />
+          <path d="M 120 60 Q 110 70, 115 80" />
+          <path d="M 125 95 Q 115 105, 120 115" />
+        </g>
       </svg>`,
 
       oil: `<svg viewBox="0 0 90 120" fill="none"><rect x="18" y="28" width="54" height="82" rx="12" fill="#f59e0b"/><rect x="12" y="58" width="66" height="30" rx="6" fill="#fff"/><text x="45" y="78" text-anchor="middle" font-size="14" font-weight="900" fill="#b45309">OIL</text></svg>`,
@@ -521,7 +543,7 @@
         el.style.opacity   = '0';
 
         animate({
-          duration: 0.35,
+          duration: 0.5,
           easing: ease.outBack,
           onUpdate: v => {
             el.style.opacity   = `${Math.min(v*2.5,1)}`;
@@ -562,7 +584,7 @@
       return new Promise(resolve => {
         const brain = document.getElementById('brainWrap');
         animate({
-          duration: 0.4,
+          duration: 0.8,
           easing: ease.outCubic,
           onUpdate: v => {
             brain.style.opacity   = `${Math.min(v*2.5,1)}`;
@@ -580,9 +602,9 @@
       return new Promise(resolve => {
         const groups = [
           { keys: ['oil'], delay: 0 },
-          { keys: ['water', 'rice'], delay: 150 },
-          { keys: ['dress', 'suit', 'bag'], delay: 300 },
-          { keys: ['cart', 'cosmetic'], delay: 450 }
+          { keys: ['water', 'rice'], delay: 250 },
+          { keys: ['dress', 'suit', 'bag'], delay: 500 },
+          { keys: ['cart', 'cosmetic'], delay: 750 }
         ];
 
         let completedGroups = 0;
@@ -598,7 +620,7 @@
               const tY   = cy() - r.height/2;
 
               animate({
-                duration: 0.35,
+                duration: 0.5,
                 easing: ease.inCubic,
                 onUpdate: v => {
                   el.style.left      = lerp(sX,tX,v)+'px';
@@ -610,7 +632,7 @@
             });
 
             completedGroups++;
-            if (completedGroups === groups.length) setTimeout(resolve, 380);
+            if (completedGroups === groups.length) setTimeout(resolve, 600);
           }, group.delay);
         });
       });
@@ -652,7 +674,7 @@
         crackSvg.style.opacity = '1';
 
         animate({
-          duration: 0.15,
+          duration: 0.3,
           easing: ease.outCubic,
           onUpdate: v => { crackLine.style.strokeDashoffset = lerp(400, 0, v); },
           onComplete: () => {
@@ -662,7 +684,7 @@
             const spreadY = vh() * (isMobile() ? 0.18 : 0.22);
 
             animate({
-              duration: 0.25,
+              duration: 0.4,
               easing: ease.outBack,
               onUpdate: v => {
                 leftH.style.transform  = `translate3d(${-spreadX*v}px, ${-spreadY*v}px, 0) scale(${lerp(1,0.7,v)})`;
@@ -684,14 +706,14 @@
         const layer = document.getElementById('welcomeLayer');
         const text  = document.getElementById('welcomeText');
         const sub   = document.getElementById('welcomeSub');
-        animate({ duration: 0.2, easing: ease.outCubic, onUpdate: v => { layer.style.opacity = `${v}`; } });
+        animate({ duration: 0.4, easing: ease.outCubic, onUpdate: v => { layer.style.opacity = `${v}`; } });
         animate({
-          duration: 0.3,
+          duration: 0.5,
           easing: ease.outBack,
           onUpdate: v => { text.style.transform = `scale(${lerp(0, 1, v)})`; },
           onComplete: () => {
             animate({
-              duration: 0.3,
+              duration: 0.5,
               easing: ease.outBack,
               onUpdate: v => {
                 sub.style.opacity   = `${Math.min(v*1.5,1)}`;
@@ -708,32 +730,37 @@
       const intro   = document.getElementById('intro');
       const mainApp = document.getElementById('main-app');
 
-      await new Promise(r => setTimeout(r, 100));
+      await new Promise(r => setTimeout(r, 200));
       animateBrainEntrance();
 
       const objSchedule = [
-        ['oil',      250],
-        ['water',    450],
-        ['rice',     650],
-        ['dress',    850],
-        ['suit',     1050],
-        ['bag',      1200],
-        ['cart',     1300],
-        ['cosmetic', 1400],
+        ['oil',      500],
+        ['water',    1000],
+        ['rice',     1500],
+        ['dress',    2000],
+        ['suit',     2500],
+        ['bag',      3000],
+        ['cart',     3500],
+        ['cosmetic', 4000],
       ];
       objSchedule.forEach(([key, delay]) => setTimeout(() => popObject(key), delay));
 
-      await new Promise(r => setTimeout(r, 2000));
+      // Wait for objects to finish popping in and float around for a bit
+      await new Promise(r => setTimeout(r, 5200));
       await convergeObjects();
-      await new Promise(r => setTimeout(r, 100));
+      
+      await new Promise(r => setTimeout(r, 200));
       await animateBrainSplit();
+      
       await revealWelcome();
-      await new Promise(r => setTimeout(r, 600));
+      
+      // Hold the welcome screen
+      await new Promise(r => setTimeout(r, 1200));
 
       intro.classList.add('finished');
       setTimeout(() => { 
         mainApp.classList.add('visible'); 
-      }, 200);
+      }, 400);
     }
 
     window.addEventListener('click', getAudioContext, { once: true });
