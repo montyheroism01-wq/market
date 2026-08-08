@@ -218,8 +218,8 @@ body::after {
   background-clip: text;
 }
 
-/* Sync row */
-.sync-row { display: flex; align-items: center; gap: 6px; margin-top: 5px; }
+/* Sync row (Hidden as requested) */
+.sync-row { display: none !important; }
 .sync-dot {
   width: 7px; height: 7px;
   border-radius: 50%;

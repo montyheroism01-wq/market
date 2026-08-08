@@ -92,6 +92,8 @@ async function apiTick(id) {
 // SYNC
 // ══════════════════════════════════════════════
 
+let lastItemsStr = '';
+
 async function fetchItems() {
   if (!configOk) return;
   try {
@@ -99,7 +101,12 @@ async function fetchItems() {
     const data = await apiGet();
     if (data.success) {
       items = data.items || [];
-      renderItems();
+      const newItemsStr = JSON.stringify(items);
+      // Only re-render if the data actually changed to prevent flickering
+      if (newItemsStr !== lastItemsStr) {
+        lastItemsStr = newItemsStr;
+        renderItems();
+      }
       setSyncState('synced', 'Synced');
     } else {
       setSyncState('error', 'Error');
@@ -490,23 +497,7 @@ function setSyncState(state, label) {
 // ══════════════════════════════════════════════
 
 function spawnParticles() {
-  const container = document.body;
-  const COUNT = 22;
-  const colors = ['rgba(0,240,255,0.7)', 'rgba(139,92,246,0.6)', 'rgba(244,114,182,0.5)'];
-  for (let i = 0; i < COUNT; i++) {
-    const p = document.createElement('div');
-    p.className = 'particle';
-    p.style.cssText = `
-      left: ${Math.random() * 100}vw;
-      bottom: -10px;
-      width:  ${Math.random() * 2 + 1}px;
-      height: ${Math.random() * 2 + 1}px;
-      background: ${colors[Math.floor(Math.random() * colors.length)]};
-      animation-duration: ${Math.random() * 18 + 14}s;
-      animation-delay:    ${Math.random() * 12}s;
-    `;
-    container.appendChild(p);
-  }
+  // Disabled as per user request to keep UI clean, simple, and lag-free
 }
 
 // ══════════════════════════════════════════════
