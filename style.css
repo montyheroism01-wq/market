@@ -196,13 +196,7 @@ body::after {
   font-size: 2.4rem;
   line-height: 1;
   flex-shrink: 0;
-  animation: icon-wiggle 3.5s ease-in-out infinite;
-  filter: drop-shadow(0 4px 12px rgba(155, 93, 229, 0.3));
-}
-@keyframes icon-wiggle {
-  0%,100% { transform: rotate(-4deg) scale(1); }
-  25%     { transform: rotate(5deg)  scale(1.06); }
-  75%     { transform: rotate(-3deg) scale(0.97); }
+  filter: drop-shadow(0 4px 12px rgba(255, 143, 171, 0.3));
 }
 
 /* Title */
