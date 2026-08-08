@@ -143,9 +143,18 @@ function autoUnit(type, qty) {
 }
 
 function toggleUnit(type, current) {
-  if (type === 'oil')   return current === 'L'  ? 'ml' : 'L';
-  if (type === 'water') return current === ''   ? 'L'  : current === 'L' ? 'ml' : '';
-  return current === 'kg' ? 'g' : 'kg';
+  // Volume cycle: L -> ml -> (empty/quantity) -> ₹ -> L
+  if (type === 'oil' || type === 'water') {
+    if (current === 'L') return 'ml';
+    if (current === 'ml') return '';
+    if (current === '') return '₹';
+    return 'L';
+  }
+  // Weight/General cycle: kg -> g -> (empty/quantity) -> ₹ -> kg
+  if (current === 'kg') return 'g';
+  if (current === 'g') return '';
+  if (current === '') return '₹';
+  return 'kg';
 }
 
 function hintForType(type) {
@@ -202,7 +211,7 @@ function initEventHandlers() {
     if (manualUnit) return;
     const v = DOM.qtyInput.value;
     currentUnit = autoUnit(currentItemType, v);
-    DOM.unitLabel.textContent = currentUnit || '—';
+    DOM.unitLabel.textContent = currentUnit || ' ';
   });
 
   // ── Qty input: Enter to save ─────────────────
@@ -223,7 +232,7 @@ function initEventHandlers() {
   DOM.unitBtn.addEventListener('click', () => {
     manualUnit  = true;
     currentUnit = toggleUnit(currentItemType, currentUnit);
-    DOM.unitLabel.textContent = currentUnit || '—';
+    DOM.unitLabel.textContent = currentUnit || ' ';
     DOM.unitBtn.classList.add('toggled');
     setTimeout(() => DOM.unitBtn.classList.remove('toggled'), 320);
   });
@@ -265,7 +274,7 @@ function closeOilModal(clearItem = false) {
 function activateQtyBox() {
   DOM.qtyBox.classList.add('active');
   DOM.qtyInput.value = '';
-  DOM.unitLabel.textContent = '—';
+  DOM.unitLabel.textContent = ' ';
   manualUnit  = false;
   currentUnit = '';
 
@@ -286,7 +295,7 @@ function resetToIdle(savedOk = false) {
   isSaving        = false;
   DOM.itemInput.value = '';
   DOM.qtyInput.value  = '';
-  DOM.unitLabel.textContent = '—';
+  DOM.unitLabel.textContent = ' ';
   DOM.typeHint.className    = 'type-hint';
   DOM.qtyBox.classList.remove('active');
   DOM.inputHint.innerHTML = 'Type item name and press <kbd>Enter ↵</kbd>';

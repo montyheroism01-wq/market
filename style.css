@@ -65,7 +65,11 @@
 
 /* Hidden scrollbars */
 ::-webkit-scrollbar { width: 0; height: 0; display: none; }
-*                   { scrollbar-width: none; -ms-overflow-style: none; }
+*                   { 
+  scrollbar-width: none; 
+  -ms-overflow-style: none; 
+  -webkit-tap-highlight-color: transparent;
+}
 
 /* Disable text selection highlights */
 ::selection { background: transparent; }
