@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#06060f" />
+  <meta name="description" content="Smart Market List — a real-time, cross-device grocery list powered by Google Sheets. No local storage, syncs everywhere instantly." />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta property="og:title" content="Smart Market List" />
+  <meta property="og:description" content="Real-time cross-device grocery list powered by Google Sheets" />
+
+  <title>Smart Market List</title>
+
+  <!--
+    ── FAVICON (Tab Logo) ─────────────────────────────────────────
+    Place ANY of these PNG filenames in the same folder as index.html
+    and the browser will automatically use it as the tab icon:
+
+      favicon.png   ← most common, try this first
+      logo.png
+      icon.png
+
+    You can also use a .ico file named  favicon.ico
+    ──────────────────────────────────────────────────────────────
+  -->
+  <!-- Primary favicon — rename your PNG to favicon.png -->
+  <link rel="icon"             href="favicon.png"  type="image/png" sizes="any" />
+  <!-- Fallbacks for other common names -->
+  <link rel="icon"             href="logo.png"     type="image/png" sizes="any" />
+  <link rel="icon"             href="icon.png"     type="image/png" sizes="any" />
+  <!-- Apple home-screen icon (when bookmarked on iPhone/iPad) -->
+  <link rel="apple-touch-icon" href="favicon.png" />
+  <link rel="apple-touch-icon" href="logo.png"   />
+  <link rel="apple-touch-icon" href="icon.png"   />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ── Background Effects ── -->
+  <div class="grid-bg"  aria-hidden="true"></div>
+  <div class="orb orb-1" aria-hidden="true"></div>
+  <div class="orb orb-2" aria-hidden="true"></div>
+  <div class="orb orb-3" aria-hidden="true"></div>
+
+  <!-- ══════════════════════════════════════════
+       APP SHELL
+       ══════════════════════════════════════════ -->
+  <div class="app">
+
+    <!-- ── Header ── -->
+    <header class="app-header" role="banner">
+      <div class="header-left">
+
+        <!-- Icon -->
+        <div class="app-icon" aria-hidden="true">🛒</div>
+
+        <!-- Title + sync -->
+        <div>
+          <h1 class="app-title">Smart Market List</h1>
+          <div class="sync-row">
+            <span class="sync-dot" id="sync-dot" role="status" aria-label="Sync status"></span>
+            <span class="sync-text" id="sync-text">Connecting…</span>
+          </div>
+        </div>
+
+      </div><!-- .header-left -->
+
+      <!-- Item count -->
+      <div class="header-right">
+        <div class="count-pill" aria-label="Total pending items">
+          <span id="count-badge">0</span>
+          <span class="count-label">items</span>
+        </div>
+      </div>
+
+    </header><!-- .app-header -->
+
+
+    <!-- ── Input Section ── -->
+    <section class="input-section" aria-label="Add a market item">
+
+      <div class="input-row">
+
+        <!-- BIG BOX: Item name -->
+        <div class="input-box item-box" id="item-box">
+          <div class="box-label">What do you need?</div>
+          <input
+            type="text"
+            id="item-input"
+            class="box-input"
+            placeholder="Type item name…"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="words"
+            spellcheck="false"
+            enterkeyhint="next"
+            aria-label="Item name"
+          />
+          <!-- Live type-detection hint badge -->
+          <div class="type-hint" id="type-hint" aria-live="polite"></div>
+        </div><!-- item-box -->
+
+        <!-- SMALL BOX: Quantity -->
+        <div class="input-box qty-box" id="qty-box" aria-label="Quantity">
+          <div class="box-label">How much?</div>
+          <div class="qty-inner">
+            <input
+              type="number"
+              id="qty-input"
+              class="box-input qty-num"
+              placeholder="0"
+              min="0"
+              step="any"
+              inputmode="decimal"
+              enterkeyhint="done"
+              aria-label="Quantity number"
+            />
+            <button
+              class="unit-btn"
+              id="unit-btn"
+              aria-label="Toggle unit (kg/g or L/ml)"
+              type="button"
+            >
+              <span id="unit-label">—</span>
+            </button>
+          </div>
+        </div><!-- qty-box -->
+
+      </div><!-- .input-row -->
+
+      <!-- Helper hint text -->
+      <p class="input-hint" id="input-hint" aria-live="polite">
+        Type item name and press <kbd>Enter ↵</kbd>
+      </p>
+
+    </section><!-- .input-section -->
+
+
+    <!-- ── Oil Selector Modal ── -->
+    <div
+      class="oil-overlay"
+      id="oil-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Select oil type"
+    >
+      <div class="oil-card">
+        <div class="oil-title">🫙 Which oil do you need?</div>
+        <div class="oil-opts">
+
+          <button class="oil-opt sarso" id="sarso-btn" type="button">
+            <span class="oil-emoji">🟡</span>
+            <span class="oil-name">Sarso Oil</span>
+            <span class="oil-sub">Mustard Oil</span>
+          </button>
+
+          <button class="oil-opt refine" id="refine-btn" type="button">
+            <span class="oil-emoji">🧴</span>
+            <span class="oil-name">Refine Oil</span>
+            <span class="oil-sub">Refined Oil</span>
+          </button>
+
+        </div>
+      </div>
+    </div><!-- .oil-overlay -->
+
+
+    <!-- ── Items List ── -->
+    <main class="items-section" aria-label="Market list items">
+      <div class="items-list" id="items-list" role="list">
+        <!-- Rendered dynamically by app.js -->
+        <div class="empty-state">
+          <div class="empty-icon">🛒</div>
+          <h2>Your list is empty</h2>
+          <p>Add items using the input above</p>
+        </div>
+      </div>
+    </main>
+
+
+    <!-- ── Footer ── -->
+    <footer class="app-footer" role="contentinfo">
+      MADE BY ANABRATA
+    </footer>
+
+  </div><!-- .app -->
+
+
+  <!-- Scripts -->
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+
+</body>
+</html>
